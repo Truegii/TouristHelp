@@ -1,22 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:padding="16dp"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.slideshow.SlideshowFragment">
 
     <TextView
-        android:id="@+id/text_slideshow"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:text="Manual de Ayuda"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="En la aplicación puedes buscar información de las zonas turísticas."
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Para navegar en la aplicación y seleccionar tu zona de interés, puedes realizarlo de las siguientes maneras:"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#8226; Para buscar un lugar en específico, en la esquina arriba derecha hay un ícono de lupa donde despliega un campo para escribir el nombre del lugar que deseas buscar, y este te mostrará los nombres que coincidan con lo que has escrito."
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#8226; En la ventana principal hay 3 botones de regiones: Costa, Sierra y Selva, cada uno de ellos te muestra la lista de todos los destinos de cada región seleccionada."
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#8226; Al presionar sobre un destino, te muestra la lista de zonas turísticas dentro de este destino seleccionado, y al presionar sobre una zona turística, te mostrará en otra pestaña la imagen, nombre, descripción y valoraciones de esta zona turística."
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#8226; Además, tendrás las opciones de comentar (dejar una valoración) y un botón de crear ruta, donde te mostrará un mapa con tu ubicación actual y un marcador en el destino que habías seleccionado. La aplicación trazará una ruta desde tu ubicación hasta el destino para que puedas llegar a él."
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        />
+</LinearLayout>

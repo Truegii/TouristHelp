@@ -2,6 +2,11 @@ package com.example.login;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +27,15 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -41,18 +51,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener, AdapterDest.onListaLugaresClickListener, Adaptador.onVerZonaClickListener {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
     private Spinner mSpinner,depas;
+    Button ubicame;
+    String idusu;
     RequestQueue requestQueue;
     SearchView searchView;
     ArrayList<Lugar> listaLugares = new ArrayList<>();
+    ArrayList<Destino> listaDestinos = new ArrayList<>();
     ArrayList<Lugar> listaAll = new ArrayList<>();
     ArrayList<Lugar> listaItems = new ArrayList<>();
     private Button btnBuscaz;
@@ -64,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayAdapter adpSierra;
     RecyclerView rvLugares;
     ArrayAdapter adpSelva;
+    String URLService = "https://apptouristhelp.000webhostapp.com/";
+    private FusedLocationProviderClient fusedLocationClient;
+    private Location currentLocation;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
 
     @Override
@@ -99,11 +118,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView textTitleLabel = header.findViewById(R.id.barnombre);
         TextView textNombreLabel = header.findViewById(R.id.bartexto);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location != null) {
+                        currentLocation = location;
+
+                    }
+                }
+            });
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
 
 
         Intent intent = getIntent();
         String nombre = intent.getStringExtra("name");
         String correo = intent.getStringExtra("correo");
+        idusu = intent.getStringExtra("idusu");
         textTitleLabel.setText(correo);
         textNombreLabel.setText(nombre);
 
@@ -115,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCosta = (Button) findViewById(R.id.btn_costa);
         btnSierra = (Button) findViewById(R.id.btn_sierra);
         btnSelva = (Button) findViewById(R.id.btn_selva);
-
+        ubicame = (Button) findViewById(R.id.btn_ubicame);
         depas.setAdapter(adpCosta);
 
         btnBuscaz = (Button) findViewById(R.id.btn_buscaz);
@@ -127,11 +162,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCosta.setOnClickListener(this);
         btnSierra.setOnClickListener(this);
         btnSelva.setOnClickListener(this);
+        ubicame.setOnClickListener(this);
+        listaTodo();
+
+
+
         listRegiones("listacosta");
 
         rvLugares = findViewById(R.id.RVZonas2);
 
-        listaTodo();
+
 
     }
 
@@ -148,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         departamentosCosta.add("Ica");
         departamentosSierra.add("Ayacucho");
         departamentosSierra.add("Junín");
-        departamentosSierra.add("Cusco");
+        departamentosSierra.add("Cuzco");
         departamentosSierra.add("Apurímac");
         departamentosSierra.add("San Martín");
         departamentosSierra.add("Cajamarca");
@@ -181,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onQueryTextChange(String s) {
                 filtrado(s);
                 rvLugares.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                rvLugares.setAdapter(new Adaptador(listaItems, MainActivity.this));
+                rvLugares.setAdapter(new Adaptador(listaItems, MainActivity.this, MainActivity.this));
                 return false;
             }
         });
@@ -211,6 +251,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             listRegiones("listasierra");
         }else if (v.getId() == btnSelva.getId()){
             listRegiones("listaselva");
+        } else if (v.getId() == ubicame.getId()){
+            listarZonas(getNearestDepartamento(listaAll));
         }
 
     }
@@ -233,12 +275,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void listRegiones(String region) {
 
-        String URL1 = "http://192.168.1.37/"+region+".php";
+        String URL1 = URLService+region+".php";
 
         JsonArrayRequest  request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                listaLugares.clear();
+                listaDestinos.clear();
 
                 try{
 
@@ -248,31 +290,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         String id = object.getString("id");
                         String nombre = object.getString("nombre");
-                        String descripcion = object.getString("desc");
-                        String imagenurl = object.getString("imgurl");
                         String depa = object.getString("depa");
-                        String direccion = object.getString("direc");
-                        String calificacion = object.getString("califica");
+                        String img = object.getString("imgurl");
 
-                        Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depa,direccion, calificacion);
-                        listaLugares.add(lugares);
+                        Destino destinos = new Destino(id, nombre, depa,img);
+                        listaDestinos.add(destinos);
 
 
                     }
 
 
+                    //Intent intent = new Intent(MainActivity.this, ListaZonas.class);
+                    //intent.putExtra("lista", listaAll);
 
+                    //MainActivity.this.startActivity(intent);
                     rvLugares.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                    rvLugares.setAdapter(new Adaptador(listaLugares, MainActivity.this));
+
+                    rvLugares.setAdapter(new AdapterDest(listaDestinos, MainActivity.this));
 
                 } catch (JSONException e) {
-                    Toast.makeText(MainActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,e.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Toast.makeText(MainActivity.this,volleyError.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,volleyError.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -282,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void listaTodo() {
 
-        String URL1 = "http://192.168.1.37/buscaitem.php";
+        String URL1 = URLService+"buscaitem.php";
 
         JsonArrayRequest  request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
             @Override
@@ -297,26 +340,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         String id = object.getString("id");
                         String nombre = object.getString("nombre");
-                        String descripcion = object.getString("desc");
+                        String descripcion = object.getString("descri");
                         String imagenurl = object.getString("imgurl");
                         String depa = object.getString("depa");
                         String direccion = object.getString("direc");
                         String calificacion = object.getString("califica");
+                        String lat = object.getString("lat");
+                        String lng = object.getString("lng");
 
-                        Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depa,direccion, calificacion);
+                        Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depa,direccion, calificacion,lat,lng);
                         listaAll.add(lugares);
 
                     }
 
 
                 } catch (JSONException e) {
-                    Toast.makeText(MainActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,e.getMessage()+" Error en main",Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Toast.makeText(MainActivity.this,volleyError.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,volleyError.getMessage()+" Error en Main",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -327,12 +372,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void readUser(String depanom) {
 
-        String URL1 = "http://192.168.1.37/listazonas.php?depaz=" + depanom;
+        String URL1 = URLService+"listadestinos.php?depaz=" + depanom;
 
         JsonArrayRequest  request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                listaLugares.clear();
+                listaDestinos.clear();
 
                 try{
 
@@ -342,27 +387,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             String id = object.getString("id");
                             String nombre = object.getString("nombre");
-                            String descripcion = object.getString("desc");
+                            String depar = object.getString("depa");
                             String imagenurl = object.getString("imgurl");
-                            String direccion = object.getString("direc");
-                            String calificacion = object.getString("califica");
 
-                            Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depanom,direccion, calificacion);
-                            listaLugares.add(lugares);
+
+                            Destino destinos = new Destino(id, nombre, depar, imagenurl);
+                            listaDestinos.add(destinos);
 
                         }
 
                     rvLugares.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                    rvLugares.setAdapter(new Adaptador(listaLugares, MainActivity.this));
+                    rvLugares.setAdapter(new AdapterDest(listaDestinos, MainActivity.this));
 
                 } catch (JSONException e) {
-                    Toast.makeText(MainActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,e.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Toast.makeText(MainActivity.this,volleyError.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,volleyError.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -370,12 +414,111 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void listarZonas(String depanom) {
+
+        String URL1 = URLService+"listazonas.php?depaz=" + depanom;
+
+        JsonArrayRequest  request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                listaLugares.clear();
+
+                try{
+
+
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject object = response.getJSONObject(i);
+
+                        String id = object.getString("id");
+                        String nombre = object.getString("nombre");
+                        String descrip = object.getString("desc");
+                        String imagenurl = object.getString("imgurl");
+                        String depa = object.getString("depa");
+                        String califica = object.getString("califica");
+                        String direccion = object.getString("direc");
+                        String lat = object.getString("lat");
+                        String lng = object.getString("lng");
+
+                        Lugar lugares = new Lugar(id, nombre, descrip, imagenurl,depa,direccion,califica,lat,lng);
+                        listaLugares.add(lugares);
+
+                    }
+
+                    calcularDistancias(listaLugares);
+
+                    Intent intent = new Intent(MainActivity.this, ListaZonas.class);
+                    intent.putExtra("lista", listaLugares);
+                    intent.putExtra("idusu", idusu);
+
+
+                    MainActivity.this.startActivity(intent);
+                    //rvLugares.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                    //rvLugares.setAdapter(new Adaptador(listaLugares, MainActivity.this));
+                    //rvLugares.setAdapter(new Adaptador(listaLugares, MainActivity.this));
+
+                } catch (JSONException e) {
+                    Toast.makeText(MainActivity.this,e.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Toast.makeText(MainActivity.this,volleyError.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        requestQueue.add(request);
+
+    }
+
+    private void calcularDistancias(ArrayList<Lugar> listaLugares) {
+        for (Lugar zona : listaLugares) {
+            Location destinationLocation = new Location("");
+            destinationLocation.setLatitude(Double.parseDouble(zona.getZlatitud()));
+            destinationLocation.setLongitude(Double.parseDouble(zona.getZlongitud()));
+            float distance = currentLocation.distanceTo(destinationLocation) / 1000; // convertir a kilómetros
+            zona.setDistancia(distance);
+        }
+    }
+    private void calcularDistancias2() {
+        for (Lugar zona : listaAll) {
+            Location destinationLocation = new Location("");
+            destinationLocation.setLatitude(Double.parseDouble(zona.getZlatitud()));
+            destinationLocation.setLongitude(Double.parseDouble(zona.getZlongitud()));
+            float distance = currentLocation.distanceTo(destinationLocation) / 1000; // convertir a kilómetros
+            zona.setDistancia(distance);
+        }
+    }
+
+    private String getNearestDepartamento(ArrayList<Lugar> listAll) {
+        double minDistance = Double.MAX_VALUE;
+        Lugar nearestLugar = null;
+
+        for (Lugar lugar : listAll) {
+
+            Location destinationLocation = new Location("");
+            destinationLocation.setLatitude(Double.parseDouble(lugar.getZlatitud()));
+            destinationLocation.setLongitude(Double.parseDouble(lugar.getZlongitud()));
+            float distance = currentLocation.distanceTo(destinationLocation);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestLugar = lugar;
+            }
+        }
+
+        return nearestLugar != null ? nearestLugar.getDepartamento() : null;
+    }
+
 
     public void filtrado(final String busca){
         int longitud = busca.length();
         if (longitud==0){
             listaItems.clear();
+            calcularDistancias2();
+
+
             listaItems.addAll(listaAll);
+
         }else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N){
                 List<Lugar> lugares = listaItems.stream()
@@ -393,5 +536,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
+    @Override
+    public void onListaLugaresClick(String depa) {
+        listarZonas(depa);
+    }
+
+    @Override
+    public void onVerZonaClick(Lugar lugar) {
+        Intent intent = new Intent(MainActivity.this, Zonas.class);
+        intent.putExtra("lugar",lugar);
+        intent.putExtra("idusu",idusu);
+        MainActivity.this.startActivity(intent);
+    }
+
 
 }

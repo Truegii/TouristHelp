@@ -2,26 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fragment_rutas"
-    android:orientation="vertical"
-    tools:context=".ui.gallery.GalleryFragment">
+    tools:context=".Mapas">
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:id="@+id/txtOrigen"
-        android:hint="Origen"/>
+        android:id="@+id/txtLatitud"
+        android:hint="Latitud"/>
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:id="@+id/txtDestino"
-        android:hint="Destino"/>
+        android:id="@+id/txtLongitud"
+        android:hint="Longitud"/>
+
+    
+
     <fragment
-        android:id="@+id/map3"
+        android:id="@+id/map"
         android:layout_marginTop="25dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -29,5 +33,4 @@
         map:cameraZoom="10"
         map:uiRotateGestures="true"
         map:uiZoomControls="true"/>
-
 </LinearLayout>

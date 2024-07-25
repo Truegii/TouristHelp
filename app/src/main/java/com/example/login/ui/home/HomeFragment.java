@@ -1,5 +1,6 @@
 package com.example.login.ui.home;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.login.Adaptador;
+import com.example.login.AdapterDest;
+import com.example.login.Destino;
 import com.example.login.ListaZonas;
 import com.example.login.Lugar;
 import com.example.login.MainActivity;
@@ -36,15 +39,17 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class HomeFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class HomeFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener, AdapterDest.onListaLugaresClickListener {
 
 
     private FragmentHomeBinding binding;
     RequestQueue requestQueue;
     ArrayList<String> departamentosCosta = new ArrayList<>();
     ArrayList<String> departamentosSierra = new ArrayList<>();
+    ArrayList<Destino> listaDestinos = new ArrayList<>();
     ArrayList<String> departamentosSelva = new ArrayList<>();
     ArrayList<Lugar> listaLugares = new ArrayList<>();
+    String URLService = "https://apptouristhelp.000webhostapp.com/";
     ArrayAdapter adpCosta;
 
     ArrayAdapter adpSierra;
@@ -144,16 +149,16 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
     }
     private void listRegiones(String region) {
 
-        String URL1 = "http://192.168.1.37/"+region+".php";
+        String URL1 = "https://apptouristhelp.000webhostapp.com/"+region+".php";
 
         JsonArrayRequest  request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                listaLugares.clear();
+                listaDestinos.clear();
 
                 try{
 
-
+/*
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject object = response.getJSONObject(i);
 
@@ -164,17 +169,34 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
                         String depa = object.getString("depa");
                         String direccion = object.getString("direc");
                         String calificacion = object.getString("califica");
-
-                        Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depa,direccion, calificacion);
+                        String lat = object.getString("lat");
+                        String lng = object.getString("lng");
+                        Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depa,direccion, calificacion,lat,lng);
                         listaLugares.add(lugares);
+
+
+                    }
+
+*/
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject object = response.getJSONObject(i);
+
+                        String id = object.getString("id");
+                        String nombre = object.getString("nombre");
+                        String depa = object.getString("depa");
+                        String img = object.getString("imgurl");
+
+                        Destino destinos = new Destino(id, nombre, depa,img);
+                        listaDestinos.add(destinos);
 
 
                     }
 
 
 
+
                     binding.RVZonas2.setLayoutManager(new LinearLayoutManager(getActivity()));
-                    binding.RVZonas2.setAdapter(new Adaptador(listaLugares, getActivity()));
+                    binding.RVZonas2.setAdapter(new AdapterDest(listaDestinos, (AdapterDest.onListaLugaresClickListener) getActivity()));
 
                 } catch (JSONException e) {
                     Toast.makeText(getActivity(),e.getMessage(),Toast.LENGTH_SHORT).show();
@@ -192,12 +214,12 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
     }
     private void readUser(String depanom) {
 
-        String URL1 = "http://192.168.1.37/listazonas.php?depaz=" + depanom;
+        String URL1 = "https://apptouristhelp.000webhostapp.com/listadestinos.php?depaz=" + depanom;
 
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                listaLugares.clear();
+                listaDestinos.clear();
 
                 try{
 
@@ -207,18 +229,17 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
 
                         String id = object.getString("id");
                         String nombre = object.getString("nombre");
-                        String descripcion = object.getString("desc");
+                        String depar = object.getString("depa");
                         String imagenurl = object.getString("imgurl");
-                        String direccion = object.getString("direc");
-                        String calificacion = object.getString("califica");
 
-                        Lugar lugares = new Lugar(id, nombre, descripcion, imagenurl, depanom,direccion, calificacion);
-                        listaLugares.add(lugares);
+
+                        Destino destinos = new Destino(id, nombre, depar, imagenurl);
+                        listaDestinos.add(destinos);
 
                     }
 
                     binding.RVZonas2.setLayoutManager(new LinearLayoutManager(getActivity()));
-                    binding.RVZonas2.setAdapter(new Adaptador(listaLugares, getActivity()));
+                    binding.RVZonas2.setAdapter(new AdapterDest(listaDestinos, (AdapterDest.onListaLugaresClickListener) getActivity()));
 
 
 
@@ -238,5 +259,64 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
 
         requestQueue.add(request);
 
+    }
+    private void listarZonas(String depanom) {
+
+        String URL1 = URLService+"listazonas.php?depaz=" + depanom;
+
+        JsonArrayRequest  request = new JsonArrayRequest(Request.Method.GET, URL1,null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                listaLugares.clear();
+
+                try{
+
+
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject object = response.getJSONObject(i);
+
+                        String id = object.getString("id");
+                        String nombre = object.getString("nombre");
+                        String descrip = object.getString("desc");
+                        String imagenurl = object.getString("imgurl");
+                        String depa = object.getString("depa");
+                        String califica = object.getString("califica");
+                        String direccion = object.getString("direc");
+                        String lat = object.getString("lat");
+                        String lng = object.getString("lng");
+
+                        Lugar lugares = new Lugar(id, nombre, descrip, imagenurl,depa,direccion,califica,lat,lng);
+                        listaLugares.add(lugares);
+
+                    }
+
+                    Intent intent = new Intent(getActivity(), ListaZonas.class);
+                    intent.putExtra("lista", listaLugares);
+
+
+
+                    getActivity().startActivity(intent);
+                    //rvLugares.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                    //rvLugares.setAdapter(new Adaptador(listaLugares, MainActivity.this));
+                    //rvLugares.setAdapter(new Adaptador(listaLugares, MainActivity.this));
+
+                } catch (JSONException e) {
+                    Toast.makeText(getActivity(),e.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Toast.makeText(getActivity(),volleyError.getMessage()+"Error en main",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        requestQueue.add(request);
+
+    }
+
+    @Override
+    public void onListaLugaresClick(String depa) {
+        listarZonas(depa);
     }
 }

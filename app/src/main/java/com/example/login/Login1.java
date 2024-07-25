@@ -30,8 +30,8 @@ public class Login1 extends AppCompatActivity implements View.OnClickListener {
     TextView tv_usu;
     TextView tv_pass;
     Button btn_iniciar;
-
-
+    //String URLService = getResources().getString(R.string.URLService);
+    String URLService = "https://apptouristhelp.000webhostapp.com/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,12 +65,12 @@ public class Login1 extends AppCompatActivity implements View.OnClickListener {
     public void onClick(View view) {
         String correo = tv_usu.getText().toString().trim();
         String password = tv_pass.getText().toString().trim();
+
         readUser(correo, password);
 
     }
-
     private void readUser(String cor, String pas) {
-        String URL1 = "http://192.168.1.37/login.php?correo=";
+        String URL1 = URLService+"login.php?correo=";
         URL1 = URL1 + cor + "&password=" + pas;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET,
@@ -79,8 +79,9 @@ public class Login1 extends AppCompatActivity implements View.OnClickListener {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        String correo, nomusu;
+                        String correo, nomusu, idusu;
                         try {
+                            idusu = response.getString("idusu");
                             correo = response.getString("correo");
                             nomusu = response.getString("nombre");
 
@@ -89,6 +90,7 @@ public class Login1 extends AppCompatActivity implements View.OnClickListener {
                                 Intent intent = new Intent(Login1.this, MainActivity.class);
                                 intent.putExtra("name", nomusu);
                                 intent.putExtra("correo", correo);
+                                intent.putExtra("idusu",idusu);
                                 Login1.this.startActivity(intent);
                             }
                         } catch (JSONException e) {

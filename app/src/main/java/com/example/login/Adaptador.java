@@ -20,10 +20,12 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.ViewHolder> {
 
     private ArrayList<Lugar> lugares;
     private Context context;
+    private onVerZonaClickListener context2;
 
-    public Adaptador(ArrayList<Lugar> lugares, Context context) {
+    public Adaptador(ArrayList<Lugar> lugares, Context context, onVerZonaClickListener context2) {
         this.lugares = lugares;
         this.context = context;
+        this.context2 = context2;
     }
 
     @NonNull
@@ -61,18 +63,23 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.ViewHolder> {
                     .error(R.mipmap.ic_launcher_round)
                     .into(ivLugar);
             tvLugar.setText(lugar.getNombre());
-            tvDesc.setText(lugar.getDireccion());
+            tvDesc.setText("Distancia: "+String.format("%.2f", lugar.getDistancia())+"km");
             rbCalifica.setRating(Float.parseFloat(lugar.getCalifica()));
 
             ivLugar.setOnClickListener(new View.OnClickListener(){
 
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, Zonas.class);
-                    intent.putExtra("lugar",lugar);
-                    context.startActivity(intent);
+                    //Intent intent = new Intent(context, Zonas.class);
+                    //intent.putExtra("lugar",lugar);
+                    //context.startActivity(intent);
+                    context2.onVerZonaClick(lugar);
                 }
             });
         }
+    }
+
+    public interface onVerZonaClickListener{
+        void onVerZonaClick(Lugar lugar);
     }
 }

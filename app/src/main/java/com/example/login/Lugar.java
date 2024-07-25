@@ -4,17 +4,21 @@ import java.io.Serializable;
 
 public class Lugar implements Serializable {
     String id;
-    String nombre,desc,imgurl,departamento, direccion;
+    String nombre,descri,imgurl,departamento, direccion;
     String califica;
+    String zlatitud,zlongitud;
+    float distance;
 
-    public Lugar(String id, String nombre, String desc, String imgurl, String departamento, String direccion, String califica) {
+    public Lugar(String id, String nombre, String descri, String imgurl, String departamento, String direccion, String califica, String zlatitud, String zlongitud) {
         this.id = id;
         this.nombre = nombre;
-        this.desc = desc;
+        this.descri = descri;
         this.imgurl = imgurl;
         this.departamento = departamento;
         this.direccion = direccion;
         this.califica = califica;
+        this.zlatitud = zlatitud;
+        this.zlongitud = zlongitud;
     }
 
     public String getId() {
@@ -33,12 +37,12 @@ public class Lugar implements Serializable {
         this.nombre = nombre;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescri() {
+        return descri;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescri(String descri) {
+        this.descri = descri;
     }
 
     public String getImgurl() {
@@ -71,5 +75,28 @@ public class Lugar implements Serializable {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
+    }
+
+    public String getZlatitud() {
+        return zlatitud;
+    }
+
+    public void setZlatitud(String zlatitud) {
+        this.zlatitud = zlatitud;
+    }
+
+    public String getZlongitud() {
+        return zlongitud;
+    }
+
+    public void setZlongitud(String zlongitud) {
+        this.zlongitud = zlongitud;
+    }
+    public double getDistancia() {
+        return distance;
+    }
+
+    public void setDistancia(float distance) {
+        this.distance = distance;
     }
 }

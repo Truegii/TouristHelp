@@ -33,7 +33,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     EditText etnombre, etcorreo, etpassword, etedad;
     Button btn_registrar;
     RequestQueue requestQueue;
-    private static final String URL1 = "http://192.168.1.37/registrar.php";
+    String URLService = "https://apptouristhelp.000webhostapp.com/";
+    private final String URL1 = URLService+"registrar.php";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

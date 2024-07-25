@@ -4,59 +4,151 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <LinearLayout
         android:id="@+id/main"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".Zonas">
+
+
+        <ImageView
+            android:id="@+id/imgZona1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            app:srcCompat="@mipmap/ic_launcher_round" />
 
         <TextView
             android:id="@+id/text_zona1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="80dp"
+            android:layout_gravity="start"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="15dp"
             android:text="Zona1"
-            android:textSize="30sp"/>
+            android:textSize="30sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="15dp"
+        android:gravity="end"
+        android:layout_height="wrap_content">
+        <RatingBar
+            android:id="@+id/rtgZona"
+            style="@style/estiloCalifica"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="20dp"
+            android:mirrorForRtl="true"
+            android:progressTint="#FFE500"
+            android:rating="4.3" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content"
+            android:text="(Valoración)"/>
+    </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:text="Descripción"
+            android:textSize="21sp"
+            android:textStyle="bold" />
 
-        <ImageView
-            android:layout_width="match_parent"
-
-            android:id="@+id/imgZona1"
-            android:layout_marginTop="25dp"
-            android:layout_gravity="center"
-            app:srcCompat="@mipmap/ic_launcher_round"
-            android:layout_height="650px"/>
         <TextView
             android:id="@+id/text_zona2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="45dp"
-            android:layout_marginEnd="15dp"
             android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp"
             android:text="Texto de la zona"
             android:textSize="20sp" />
+
         <Button
             android:layout_width="wrap_content"
+            android:id="@+id/btnRuta"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="20dp"
-            android:text="Calificar"
-            android:layout_marginEnd="20dp"/>
+            android:layout_marginEnd="20dp"
+            android:text="Crear Ruta" />
 
-        <RatingBar
-            android:id="@+id/rtgZona"
-            android:layout_marginTop="5dp"
-            style="@style/estiloCalifica"
+
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_gravity="end"
             android:layout_height="wrap_content"
-            android:rating="4.3" />
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="20dp"
+            android:text="Calificaciones y opiniones"
+            android:textSize="11pt" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="Califica este lugar"
+                android:textSize="9pt" />
+
+            <RatingBar
+                android:id="@+id/rbComentario"
+                style="@style/estiloCalifica"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginStart="40dp"
+                android:indeterminateOnly="false"
+                android:isIndicator="false"
+                android:numStars="5"
+                android:progressTint="#FFEB3B"
+                android:stepSize=".5" />
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etOpinion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:hint="Ingresa una opinión" />
+
+        <Button
+            android:id="@+id/btnPublicar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="20dp"
+            android:text="Publicar" />
+
+        <LinearLayout
+            android:id="@+id/rvopiniones"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/RVComentarios"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
 
 
     </LinearLayout>
