@@ -152,7 +152,7 @@ public class Mapas extends AppCompatActivity implements OnMapReadyCallback {
 
 
     private void drawRoute(LatLng origin, LatLng destination) {
-        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin.latitude + "," + origin.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&key=AIzaSyDMBDExIkhJBI0Atr4IdC_uPZEp6RIgvrM";
+        String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin.latitude + "," + origin.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&key=TU API KEY";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
